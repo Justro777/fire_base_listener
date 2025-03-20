@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>FCM Topic Listener</title>
+    <!-- <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-messaging.js"></script> -->
+  </head>
+  <body>
+    <h1>Listening to FCM Topic Messages</h1>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+      import {
+        getMessaging,
+        getToken,
+        onMessage,
+      } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-messaging.js";
+
+      // ✅ Replace with your Firebase config
+      const firebaseConfig = {
+        apiKey: "AIzaSyC5Alcu-llcKWijM-ZALovRTZ8Stni6oKs",
+        authDomain: "djmm-22800.firebaseapp.com",
+        projectId: "djmm-22800",
+        storageBucket: "djmm-22800.firebasestorage.app",
+        messagingSenderId: "362061972330",
+        appId: "1:362061972330:web:70e8f617cef2f03ebd9b13",
+        measurementId: "G-VZGL9FDL2N",
+      };
+
+      // ✅ Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const messaging = getMessaging(app);
+
+      // ✅ Request notification permission
+      async function requestPermission() {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            console.log("Notification permission granted.");
+
+            // 🚀 Get the token WITHOUT specifying VAPID key
+            const token = await getToken(messaging);
+            console.log("FCM Token:", token);
+          } else {
+            console.log("Notification permission denied.");
+          }
+        } catch (error) {
+          console.error("Error getting permission:", error);
+        }
+      }
+
+      // ✅ Listen for messages
+      onMessage(messaging, (payload) => {
+        console.log("Message received:", payload);
+        alert("New Message: " + JSON.stringify(payload));
+      });
+
+      // ✅ Call the function to request permission
+      requestPermission();
+    </script>
+  </body>
+</html>

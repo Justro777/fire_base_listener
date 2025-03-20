@@ -1,60 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>FCM Topic Listener</title>
-    <!-- <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-messaging.js"></script> -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase Topic Listener</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js"></script>
   </head>
   <body>
-    <h1>Listening to FCM Topic Messages</h1>
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-      import {
-        getMessaging,
-        getToken,
-        onMessage,
-      } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-messaging.js";
-
-      // ✅ Replace with your Firebase config
+    <h1>Listening for Firebase Notifications</h1>
+    <script>
+      // Firebase Configuration
       const firebaseConfig = {
-        apiKey: "AIzaSyC5Alcu-llcKWijM-ZALovRTZ8Stni6oKs",
+        apiKey: "",
         authDomain: "djmm-22800.firebaseapp.com",
         projectId: "djmm-22800",
-        storageBucket: "djmm-22800.firebasestorage.app",
-        messagingSenderId: "362061972330",
-        appId: "1:362061972330:web:70e8f617cef2f03ebd9b13",
-        measurementId: "G-VZGL9FDL2N",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: "",
+        measurementId: "",
       };
 
-      // ✅ Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const messaging = getMessaging(app);
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
 
-      // ✅ Request notification permission
+      // Get Firebase Messaging Instance
+      const messaging = firebase.messaging();
+
+      // Request Notification Permission
       async function requestPermission() {
         try {
           const permission = await Notification.requestPermission();
           if (permission === "granted") {
             console.log("Notification permission granted.");
-
-            // 🚀 Get the token WITHOUT specifying VAPID key
-            const token = await getToken(messaging);
-            console.log("FCM Token:", token);
           } else {
             console.log("Notification permission denied.");
           }
         } catch (error) {
-          console.error("Error getting permission:", error);
+          console.error("Error requesting permission:", error);
         }
       }
 
-      // ✅ Listen for messages
-      onMessage(messaging, (payload) => {
-        console.log("Message received:", payload);
-        alert("New Message: " + JSON.stringify(payload));
+      // Handle Incoming Messages (When App is Open)
+      messaging.onMessage((payload) => {
+        console.log("Message received: ", payload);
+        alert(
+          `Notification: ${payload.notification.title} - ${payload.notification.body}`
+        );
       });
 
-      // ✅ Call the function to request permission
+      // Request permission on page load
       requestPermission();
     </script>
   </body>

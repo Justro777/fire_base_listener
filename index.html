@@ -4,53 +4,88 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Firebase Topic Listener</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js"></script>
   </head>
   <body>
     <h1>Listening for Firebase Notifications</h1>
-    <script>
-      // Firebase Configuration
+    <button id="subscribe">Subscribe to Notifications</button>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+      import {
+        getMessaging,
+        getToken,
+        onMessage,
+      } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-messaging.js";
+
+      // ✅ Firebase Configuration
       const firebaseConfig = {
-        apiKey: "",
+        apiKey: "AIzaSyC5Alcu-llcKWijM-ZALovRTZ8Stni6oKs",
         authDomain: "djmm-22800.firebaseapp.com",
         projectId: "djmm-22800",
-        storageBucket: "",
-        messagingSenderId: "",
-        appId: "",
-        measurementId: "",
+        storageBucket: "djmm-22800.firebasestorage.app",
+        messagingSenderId: "362061972330",
+        appId: "1:362061972330:web:70e8f617cef2f03ebd9b13",
+        measurementId: "G-VZGL9FDL2N",
       };
 
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
+      // ✅ Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const messaging = getMessaging(app);
 
-      // Get Firebase Messaging Instance
-      const messaging = firebase.messaging();
+      // ✅ Register Service Worker
+      navigator.serviceWorker
+        .register("./firebase-messaging-sw.js")
+        .then((registration) => {
+          console.log("Service Worker registered:", registration);
+        })
+        .catch((error) =>
+          console.error("Service Worker registration failed:", error)
+        );
 
-      // Request Notification Permission
+      // ✅ VAPID Key (Replace with your Firebase Cloud Messaging VAPID Key)
+      const VAPID_KEY =
+        "BHuLtDNViMBqzWPZDiRKUk_ibWiepfbL4aPiH3qojKVlZQ5CqzqmLt-jSAtvTDGgVioHuiYf02eweN9a12hcNGE";
+
+      // 🔹 Request Notification Permission and Subscribe
       async function requestPermission() {
         try {
           const permission = await Notification.requestPermission();
-          if (permission === "granted") {
-            console.log("Notification permission granted.");
-          } else {
-            console.log("Notification permission denied.");
+          if (permission !== "granted") {
+            alert("Notification permission denied");
+            return;
           }
+
+          // 🔹 Get the FCM Token
+          const token = await getToken(messaging, { vapidKey: VAPID_KEY });
+          console.log("FCM Token:", token);
+
+          // 🔹 Send Token to Backend to Subscribe to a Topic
+          await fetch("https://api.djminmin.com/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, topic: "testnoti_eng_prod" }), // Change topic as needed
+          });
+
+          alert("Subscribed to topic!");
         } catch (error) {
-          console.error("Error requesting permission:", error);
+          console.error("Error getting token:", error);
         }
       }
 
-      // Handle Incoming Messages (When App is Open)
-      messaging.onMessage((payload) => {
-        console.log("Message received: ", payload);
+      // ✅ Listen for Messages in Foreground
+      onMessage(messaging, (payload) => {
+        console.log("Message received:", payload);
         alert(
-          `Notification: ${payload.notification.title} - ${payload.notification.body}`
+          "New Message: " +
+            payload.notification.title +
+            " - " +
+            payload.notification.body
         );
       });
 
-      // Request permission on page load
-      requestPermission();
+      // 🔹 Click Event for Subscription
+      document
+        .getElementById("subscribe")
+        .addEventListener("click", requestPermission);
     </script>
   </body>
 </html>

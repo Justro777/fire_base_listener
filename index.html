@@ -61,7 +61,10 @@
           // 🔹 Send Token to Backend to Subscribe to a Topic
           await fetch("https://api.djminmin.com/subscribe", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": "this-is-very-hard-djmm-prod-key",
+            },
             body: JSON.stringify({ token, topic: "testnoti_eng_prod" }), // Change topic as needed
           });
 
